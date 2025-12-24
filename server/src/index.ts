@@ -15,6 +15,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Spur AI Chat Backend is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy' });
+});
+
 // Type definitions
 interface ChatRequest {
   message: string;
@@ -26,9 +39,15 @@ app.post('/chat/message', async (req, res) => {
   try {
     const { message, sessionId } = req.body as ChatRequest;
 
+    // Input validation
     if (!message || message.trim() === '') {
        res.status(400).json({ error: "Message cannot be empty" });
        return; 
+    }
+
+    if (message.length > 1000) {
+      res.status(400).json({ error: "Message too long (max 1000 characters)" });
+      return;
     }
 
     let conversationId = sessionId;
@@ -104,7 +123,11 @@ app.post('/chat/message', async (req, res) => {
 
   } catch (error) {
     console.error("Chat Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
+    res.status(500).json({ 
+      error: "Sorry, something went wrong. Please try again.",
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    });
   }
 });
 

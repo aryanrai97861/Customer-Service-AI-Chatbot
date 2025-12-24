@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: spur-chat-backend
+    runtime: node
+    rootDir: server
+    buildCommand: npm install && npx drizzle-kit push && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production

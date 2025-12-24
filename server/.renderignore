@@ -1,0 +1,8 @@
+# Files to ignore during Render deployment
+client/
+.github/
+*.md
+!README.md
+.git/
+.vscode/
+*.log
